@@ -97,9 +97,19 @@ const nextConfig = {
 }
 
 // Wrap with Sentry so source maps upload, instrumentation, and the
-// /monitoring tunnel route are auto-configured. withSentryConfig is a
-// no-op when SENTRY_DSN is unset (e.g. local dev), so it's safe to
-// leave enabled unconditionally.
+// /monitoring tunnel route are auto-configured.
+//
+// withSentryConfig takes three arguments in v7:
+//   1. nextConfig  — the Next.js config object
+//   2. sentryWebpackPluginOptions — options forwarded to @sentry/webpack-plugin
+//      (release, authToken, org, project, etc.)
+//   3. sentryOptions — SDK behaviour options (disableServerWebpackPlugin, etc.)
+//
+// The Sentry webpack plugin (source-map upload + release creation) only runs
+// when SENTRY_AUTH_TOKEN is present. Without it the plugin tries to call the
+// Sentry CLI to detect the release version, which fails the build. Disabling
+// both server and client webpack plugins when the token is absent is safe —
+// source-map upload is a CI/prod concern, not required for the app to run.
 //
 // Build-time env vars (set these in CI / prod):
 //   SENTRY_DSN                    - public DSN
@@ -107,14 +117,28 @@ const nextConfig = {
 //   SENTRY_RELEASE                - `git rev-parse --short HEAD` (or commit SHA)
 // `silent: !process.env.CI` keeps build logs clean locally while still
 // printing Sentry output in CI.
-export default withSentryConfig(nextConfig, {
-  org: process.env.SENTRY_ORG,
-  project: process.env.SENTRY_PROJECT,
-  authToken: process.env.SENTRY_AUTH_TOKEN,
-  release: process.env.SENTRY_RELEASE,
-  silent: !process.env.CI,
-  widenClientFileUpload: true,
-  transpileClientSDK: true,
-  hideSourceMaps: true,
-  disableLogger: true,
-});
+const hasSentryAuth = Boolean(process.env.SENTRY_AUTH_TOKEN);
+
+export default withSentryConfig(
+  nextConfig,
+  // Second arg: Sentry webpack plugin options (source-map upload config)
+  {
+    org: process.env.SENTRY_ORG,
+    project: process.env.SENTRY_PROJECT,
+    authToken: process.env.SENTRY_AUTH_TOKEN,
+    release: process.env.SENTRY_RELEASE,
+    silent: !process.env.CI,
+    widenClientFileUpload: true,
+    hideSourceMaps: true,
+  },
+  // Third arg: SDK / webpack plugin enable/disable options
+  {
+    disableLogger: true,
+    transpileClientSDK: true,
+    // Disable the Sentry webpack plugin (which runs the Sentry CLI to upload
+    // source maps) when no auth token is available. Without this guard the CLI
+    // fails the build trying to auto-detect the release version.
+    disableServerWebpackPlugin: !hasSentryAuth,
+    disableClientWebpackPlugin: !hasSentryAuth,
+  },
+);

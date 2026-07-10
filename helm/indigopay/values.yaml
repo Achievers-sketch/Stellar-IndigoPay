@@ -34,7 +34,9 @@ config:
 
 secrets:
   postgresUser: postgres
-  postgresPassword: changeme
+  # Override this in a gitignored values-prod.yaml or via --set secrets.postgresPassword=...
+  # Never commit a real password here. Generate one with: openssl rand -base64 24
+  postgresPassword: ""
   postgresDb: indigopay
   resendApiKey: ""
   adminApiKey: ""
