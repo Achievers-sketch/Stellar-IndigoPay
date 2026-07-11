@@ -17,15 +17,15 @@ mod fuzz_tests;
  *   6. Community governance: badge holders vote to verify new projects
  *
  * Build:
- *   cargo build --target wasm32-unknown-unknown --release
+ *   cargo build --target wasm32v1-none --release
  *
  * Deploy:
  *   stellar contract deploy \
- *     --wasm target/wasm32-unknown-unknown/release/indigopay_contract.wasm \
+ *     --wasm target/wasm32v1-none/release/indigopay_contract.wasm \
  *     --source alice --network testnet
  */
 use soroban_sdk::{
-    contract, contractimpl, contracttype,
+    contract, contractclient, contractimpl, contracttype,
     token, Address, Env, symbol_short, Symbol, String, BytesN, Vec,
 };
 
@@ -514,7 +514,7 @@ impl IndigoPayContract {
         if project.paused { panic!("Project is already paused"); }
         project.paused = true;
         env.storage().instance().set(&DataKey::Project(project_id.clone()), &project);
-        env.events().publish((symbol_short!("proj_pause"), admin), project_id);
+        env.events().publish((symbol_short!("prj_pause"), admin), project_id);
     }
 
     /// Admin-only: lift a temporary pause on a project. Mirrors
@@ -531,7 +531,7 @@ impl IndigoPayContract {
         if !project.paused { panic!("Project is not paused"); }
         project.paused = false;
         env.storage().instance().set(&DataKey::Project(project_id.clone()), &project);
-        env.events().publish((symbol_short!("proj_resume"), admin), project_id);
+        env.events().publish((symbol_short!("prj_resm"), admin), project_id);
     }
 
     // ─── Donations ────────────────────────────────────────────────────────────
@@ -1445,7 +1445,7 @@ impl IndigoPayContract {
         }
         env.storage().instance().remove(&DataKey::PendingUpgrade);
         env.storage().instance().remove(&DataKey::UpgradeEffectiveAt);
-        env.events().publish((symbol_short!("upg_cancel"), admin), ());
+        env.events().publish((symbol_short!("upg_cncl"), admin), ());
     }
 
     /// Read-only: returns `(hash, effective_at_ledger)` for the pending

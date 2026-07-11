@@ -123,11 +123,11 @@ impl EscrowContract {
         if job.disputed {
             panic!("Job is disputed; admin must resolve");
         }
-        if milestone_index >= job.milestones.len() as u32 {
+        if milestone_index >= job.milestones.len() {
             panic!("Invalid milestone index");
         }
 
-        let milestone = &job.milestones.get(milestone_index as usize).unwrap();
+        let milestone = &job.milestones.get(milestone_index).unwrap();
         if milestone.released {
             panic!("Milestone already released");
         }
@@ -141,16 +141,18 @@ impl EscrowContract {
         //    (CEI ordering).
         let mut updated_milestones = job.milestones.clone();
         let mut released_count = 0u32;
-        for (i, m) in updated_milestones.iter_mut().enumerate() {
-            if i as u32 == milestone_index {
+        for i in 0..updated_milestones.len() {
+            let mut m = updated_milestones.get(i).unwrap().clone();
+            if i == milestone_index {
                 m.released = true;
             }
             if m.released {
                 released_count = released_count.checked_add(1).expect("released_count overflow");
             }
+            updated_milestones.set(i, m);
         }
         job.milestones = updated_milestones;
-        job.status = if released_count as usize == job.milestones.len() {
+        job.status = if released_count == job.milestones.len() {
             JobStatus::Completed
         } else {
             JobStatus::PartiallyReleased
@@ -243,10 +245,10 @@ impl EscrowContract {
         if env.ledger().sequence() < job.release_after {
             panic!("Release period not reached");
         }
-        if milestone_index >= job.milestones.len() as u32 {
+        if milestone_index >= job.milestones.len() {
             panic!("Invalid milestone index");
         }
-        let milestone = &job.milestones.get(milestone_index as usize).unwrap();
+        let milestone = &job.milestones.get(milestone_index).unwrap();
         if milestone.released {
             panic!("Milestone already released");
         }
@@ -257,7 +259,9 @@ impl EscrowContract {
         // ── Effects: mark milestone released and update status BEFORE
         //    the external token transfer (CEI ordering).
         let mut updated_milestones = job.milestones.clone();
-        updated_milestones.get_mut(milestone_index as usize).unwrap().released = true;
+        let mut m = updated_milestones.get(milestone_index).unwrap().clone();
+        m.released = true;
+        updated_milestones.set(milestone_index, m);
         job.milestones = updated_milestones;
         let all_released = job.milestones.iter().all(|m| m.released);
         job.status = if all_released { JobStatus::Completed } else { JobStatus::PartiallyReleased };

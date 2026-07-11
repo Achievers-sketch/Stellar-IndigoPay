@@ -7,7 +7,7 @@ As of Phase A, contract upgrades are no longer a single `upgrade(admin, new_wasm
 1. `propose_upgrade(admin, new_wasm_hash)` — records the proposed hash under `DataKey::PendingUpgrade` and the earliest executable ledger under `DataKey::UpgradeEffectiveAt`. Emits an `upg_prop` event.
 2. **Wait** for at least `UPGRADE_TIMELOCK_LEDGERS = 34_560` ledgers (48h × 3600s / 5s/ledger) to elapse.
 3. `execute_upgrade()` — permissionless; anyone can call it after the timelock. The contract WASM is swapped via `env.deployer().update_current_contract_wasm`, the executed hash is recorded under `DataKey::LastExecutedUpgrade`, and an `upg_exec` event is emitted.
-4. **Cancel** — admin may call `cancel_upgrade(admin)` at any time before execution to drop a pending upgrade. Emits an `upg_cancel` event.
+4. **Cancel** — admin may call `cancel_upgrade(admin)` at any time before execution to drop a pending upgrade. Emits an `upg_cncl` event.
 
 This 48h delay is the **sole safety mechanism** against a compromised admin key proposing a malicious WASM. See `SECURITY.md` for the full threat model and the recovery procedure.
 

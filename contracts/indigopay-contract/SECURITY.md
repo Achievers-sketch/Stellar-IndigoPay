@@ -72,7 +72,7 @@ Every state change in the new trust model emits an indexed event for indexer con
 | `unpause`    | `unpause_contract` lifted the pause flag       |
 | `upg_prop`   | `propose_upgrade` queued (hash + effective_at) |
 | `upg_exec`   | `execute_upgrade` swapped the WASM             |
-| `upg_cancel` | `cancel_upgrade` dropped the pending upgrade   |
+| `upg_cncl` | `cancel_upgrade` dropped the pending upgrade   |
 
 ---
 
