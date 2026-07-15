@@ -40,7 +40,7 @@ jest.mock('zlib', () => {
   };
 });
 
-const { verifyBackup, CRITICAL_TABLES, MIN_ROW_COUNTS } = require('../../../scripts/verify-backup');
+const { verifyBackup, CRITICAL_TABLES, MIN_ROW_COUNTS } = require('../../scripts/verify-backup');
 
 describe('verifyBackup', () => {
   beforeEach(() => {

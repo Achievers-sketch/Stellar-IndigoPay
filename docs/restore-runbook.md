@@ -93,8 +93,8 @@ verification fails, routed to PagerDuty (`severity: page`).
 To manually verify a specific backup:
 
 ```bash
-node scripts/verify-backup.js --backup /path/to/backup.sql
-node scripts/verify-backup.js --backup /path/to/backup.sql.gz
+node backend/scripts/verify-backup.js --backup /path/to/backup.sql
+node backend/scripts/verify-backup.js --backup /path/to/backup.sql.gz
 ```
 
 The script outputs a JSON report with pass/fail per check and

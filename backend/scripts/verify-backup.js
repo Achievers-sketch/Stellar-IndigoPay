@@ -4,8 +4,8 @@
  * verify-backup.js — Postgres backup integrity verification
  *
  * Usage:
- *   node scripts/verify-backup.js --backup /path/to/backup.sql
- *   node scripts/verify-backup.js --backup /path/to/backup.sql.gz
+ *   node backend/scripts/verify-backup.js --backup /path/to/backup.sql
+ *   node backend/scripts/verify-backup.js --backup /path/to/backup.sql.gz
  *
  * Outputs a JSON report to stdout. Exits 0 on pass, 1 on any failing check.
  *
@@ -306,7 +306,7 @@ if (require.main === module) {
   const backupIdx = args.indexOf('--backup');
 
   if (backupIdx === -1 || backupIdx + 1 >= args.length) {
-    console.error('Usage: node scripts/verify-backup.js --backup <path>');
+    console.error('Usage: node backend/scripts/verify-backup.js --backup <path>');
     process.exit(2);
   }
 

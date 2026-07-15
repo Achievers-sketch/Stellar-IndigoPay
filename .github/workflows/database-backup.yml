@@ -115,7 +115,7 @@ jobs:
             exit 1
           fi
           echo "Verifying backup: $BACKUP_FILE"
-          node scripts/verify-backup.js --backup "$BACKUP_FILE" > /tmp/verification-report.json
+          node backend/scripts/verify-backup.js --backup "$BACKUP_FILE" > /tmp/verification-report.json
           cat /tmp/verification-report.json
 
       - name: Upload verification report
