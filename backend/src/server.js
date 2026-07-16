@@ -43,6 +43,7 @@ const { Server } = require("socket.io");
 const logger = require("./logger");
 const requestLogger = require("./middleware/requestLogger");
 const requestId = require("./middleware/requestId");
+const queryRouter = require("./middleware/queryRouter");
 const metricsMiddleware = require("./middleware/metrics");
 const {
   createCorsMiddleware,
@@ -80,6 +81,7 @@ app.use(Sentry.Handlers.tracingHandler());
 // metrics so they can both read req.id.
 app.use(requestLogger);
 app.use(requestId);
+app.use(queryRouter);
 
 // /metrics: bearer-token auth in prod, unauth in dev. Mounted before
 // helmet/CSRF so Prometheus can scrape without a CSRF token.

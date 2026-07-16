@@ -10,6 +10,8 @@ const envSchema = z.object({
     .string()
     .optional()
     .default("postgres://postgres:postgres@localhost:5432/indigopay"),
+  DATABASE_REPLICA_URL: z.string().optional().default(""),
+  MAX_REPLICA_LAG_MS: z.string().optional().default("5000"),
   PORT: z.string().optional().default("4000"),
   NODE_ENV: z
     .enum(["development", "production", "test"])
