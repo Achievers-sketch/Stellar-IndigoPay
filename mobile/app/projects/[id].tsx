@@ -79,6 +79,7 @@ function Toast({
   const opacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    let timer: NodeJS.Timeout;
     // Fade in
     Animated.timing(opacity, {
       toValue: 1,
@@ -86,7 +87,7 @@ function Toast({
       useNativeDriver: true,
     }).start(() => {
       // Hold for 2 s, then fade out
-      setTimeout(() => {
+      timer = setTimeout(() => {
         Animated.timing(opacity, {
           toValue: 0,
           duration: 300,
@@ -94,6 +95,9 @@ function Toast({
         }).start(onHide);
       }, 2000);
     });
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, []);
 
   const bg = variant === "success" ? "#227239" : "#b91c1c";
