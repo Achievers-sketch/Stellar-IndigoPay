@@ -53,7 +53,7 @@ export const documentSchema = z.object({
 // ── Donation request schema ─────────────────────────────────────────────────
 
 export const donationSchema = z.object({
-  projectId: z.string().uuid(),
+  projectId: z.string().min(1, "Project ID is required"),
   amount: z
     .string()
     .regex(/^\d+(\.\d{1,7})?$/)

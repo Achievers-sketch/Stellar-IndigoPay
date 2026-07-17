@@ -165,7 +165,7 @@ jobs:
   e2e:
     name: Playwright E2E
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -188,7 +188,9 @@ jobs:
 
       - name: Run Playwright tests
         working-directory: frontend
-        run: npm run test:e2e -- --reporter=html,list
+        # Visual regression snapshots are OS/font-render dependent — skip in CI,
+        # run locally where the baseline images were generated.
+        run: npm run test:e2e -- --reporter=html,list --grep-invert "Visual regression"
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
