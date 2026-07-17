@@ -24,6 +24,8 @@ import {
 } from "../utils/notifications";
 import DonationQueueStatus from "../components/DonationQueueStatus";
 import { startQueueWorker, stopQueueWorker } from "../utils/donationQueueWorker";
+import SyncStatusIcon from "../components/SyncStatusIcon";
+import OfflineQueueIndicator from "../components/OfflineQueueIndicator";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:4000";
 const CACHE_KEY_PROJECTS = "home:projects_list";
@@ -318,6 +320,8 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       />
       <DonationQueueStatus />
+      {/* Offline queue indicator — appears when items are queued for sync */}
+      <OfflineQueueIndicator />
     </View>
   );
 }

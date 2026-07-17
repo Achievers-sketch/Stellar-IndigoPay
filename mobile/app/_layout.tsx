@@ -16,6 +16,9 @@ import {
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { AuthProvider } from "../providers/AuthProvider";
 import { init as initErrorReporter } from "../lib/errorReporter";
+import ConnectivityBanner from "../components/ConnectivityBanner";
+import { initConnectivity } from "../lib/connectivity";
+import { cache } from "../lib/offlineCache";
 
 function DeepLinkHandler() {
   useDeepLink();
@@ -52,6 +55,9 @@ export default function RootLayout() {
   // @sentry/react-native is not installed (CI / dev / OSS forks).
   useEffect(() => {
     void initErrorReporter();
+    // Initialise offline-first subsystems
+    initConnectivity();
+    void cache.init();
   }, []);
 
   return (
@@ -65,6 +71,9 @@ export default function RootLayout() {
         <NotificationHandler />
         <AuthProvider>
           <StatusBar style={theme.statusBarStyle} />
+          {/* Connectivity banner overlays everything — renders as an
+              absolute-positioned alert bar at the very top. */}
+          <ConnectivityBanner />
           <Stack
             screenOptions={{
               headerStyle: { backgroundColor: theme.header },

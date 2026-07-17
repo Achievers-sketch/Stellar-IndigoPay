@@ -12,6 +12,13 @@
 
 * **docs:** add CONTRIBUTORS.md to credit community work (GF-015, closes #64)
 
+* **frontend:** build donor impact certificate with shareable OG social preview (GF-022, closes #79)
+  - Add server-rendered OG image endpoint `/api/og/donor/[publicKey]` using `@vercel/og` (1200×630px, Edge Runtime)
+  - Generate styled impact card with donor name, XLM donated, badge tier, CO₂ offset, and CTA
+  - Add `ShareButton.tsx` — reusable component with Twitter/X, LinkedIn, and copy-link buttons with hover states
+  - Update donor profile page with `og:image`, `twitter:card=summary_large_image`, and dynamic share text
+  - Cache OG images for 1 hour via `Cache-Control: public, max-age=3600`
+
 * **backend:** implement Soroban RPC retry with exponential backoff and circuit breaker (GF-043, closes #100)
   - Add `backend/src/services/circuitBreaker.js` — reusable `CircuitBreaker` class (CLOSED / HALF_OPEN / OPEN state machine, configurable `failureThreshold` and `resetTimeout`)
   - Export `indigopay_soroban_circuit_breaker_state` Prometheus Gauge (0=closed, 1=half_open, 2=open)
