@@ -107,11 +107,12 @@ router.get("/", async (req, res, next) => {
     }
 
     const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
-    const count = await pool.query(`SELECT COUNT(*)::int AS total FROM projects ${whereSql}`, values);
-    values.push(pageSize, (page - 1) * pageSize);
+    const countValues = [...values];
+    const count = await pool.query(`SELECT COUNT(*)::int AS total FROM projects ${whereSql}`, countValues);
+    const pageValues = [...values, pageSize, (page - 1) * pageSize];
     const result = await pool.query(
-      `SELECT * FROM projects ${whereSql} ORDER BY created_at DESC, id DESC LIMIT $${values.length - 1} OFFSET $${values.length}`,
-      values,
+      `SELECT * FROM projects ${whereSql} ORDER BY created_at DESC, id DESC LIMIT $${pageValues.length - 1} OFFSET $${pageValues.length}`,
+      pageValues,
     );
     res.json({ success: true, data: result.rows.map(mapAdminProject), total: count.rows[0].total, page, pageSize });
   } catch (error) {
