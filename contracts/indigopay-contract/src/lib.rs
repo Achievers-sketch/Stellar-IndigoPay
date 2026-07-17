@@ -1801,9 +1801,9 @@ impl OracleInterface for MockOracle {
 mod tests {
     extern crate std;
     use super::*;
-    use soroban_sdk::testutils::{Address as _, Events as _, Ledger as _};
+    use soroban_sdk::testutils::{Address as _, Ledger as _};
     use soroban_sdk::token::StellarAssetClient;
-    use soroban_sdk::{Address, BytesN, Env, String, Symbol, TryFromVal, Vec};
+    use soroban_sdk::{Address, BytesN, Env, String, Vec};
 
     // ─── Existing tests ───────────────────────────────────────────────────────
 
@@ -1822,7 +1822,7 @@ mod tests {
 
     #[test]
     fn test_get_donation_record() {
-        let (_env, _cid, client, admin, pid) = setup();
+        let (env, _cid, client, admin, pid) = setup();
         // Set up USDC token
         let token_admin = Address::generate(&env);
         let token = env
@@ -2169,7 +2169,7 @@ mod tests {
 
     #[test]
     fn test_create_proposal() {
-        let (_env, _cid, client, admin, pid) = setup();
+        let (env, _cid, client, admin, pid) = setup();
         client.create_proposal(&admin, &pid, &0u32);
         let p = client.get_proposal(&pid);
         assert_eq!(p.votes_for, 0);
@@ -2201,7 +2201,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Only badge holders (Seedling or above) can vote")]
     fn test_non_badge_holder_cannot_vote() {
-        let (_env, _cid, client, admin, pid) = setup();
+        let (env, _cid, client, admin, pid) = setup();
         client.create_proposal(&admin, &pid, &0u32);
         let non_donor = Address::generate(&env);
         client.vote_verify_project(&non_donor, &pid, &true);
@@ -2317,7 +2317,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Only admin can perform this action")]
     fn test_veto_proposal_non_admin_fails() {
-        let (_env, _cid, client, admin, pid) = setup();
+        let (env, _cid, client, admin, pid) = setup();
         client.create_proposal(&admin, &pid, &0u32);
         let imposter = Address::generate(&env);
         client.veto_proposal(&imposter, &pid);
@@ -2350,7 +2350,7 @@ mod tests {
     /// A non-zero `duration_ledgers` within bounds is honored verbatim.
     #[test]
     fn test_create_proposal_custom_duration() {
-        let (_env, _cid, client, admin, pid) = setup();
+        let (env, _cid, client, admin, pid) = setup();
         let custom: u32 = 5_000;
         let start = env.ledger().sequence();
         client.create_proposal(&admin, &pid, &custom);
@@ -2361,7 +2361,7 @@ mod tests {
     /// `0` means "use the default 7-day window".
     #[test]
     fn test_create_proposal_zero_duration_uses_default() {
-        let (_env, _cid, client, admin, pid) = setup();
+        let (env, _cid, client, admin, pid) = setup();
         let start = env.ledger().sequence();
         client.create_proposal(&admin, &pid, &0u32);
         let p = client.get_proposal(&pid);
@@ -2385,7 +2385,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "CO2 per XLM exceeds maximum")]
     fn test_register_project_rejects_excessive_co2_per_xlm() {
-        let (_env, _cid, client, admin, _pid) = setup();
+        let (env, _cid, client, admin, _pid) = setup();
         let pid2 = String::from_str(&env, "proj-002");
         let wallet = Address::generate(&env);
         client.register_project(
@@ -2399,7 +2399,7 @@ mod tests {
 
     #[test]
     fn test_deactivate_all_projects() {
-        let (_env, _cid, client, admin, pid1) = setup();
+        let (env, _cid, client, admin, pid1) = setup();
         let pid2 = String::from_str(&env, "proj-002");
         let wallet = Address::generate(&env);
         client.register_project(
@@ -2487,7 +2487,7 @@ mod tests {
 
     #[test]
     fn test_mint_project_nft_success() {
-        let (_env, _cid, client, _admin, pid) = setup();
+        let (env, _cid, client, _admin, pid) = setup();
         let donor = Address::generate(&env);
         let token_admin = Address::generate(&env);
         let token = env
@@ -2513,7 +2513,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Cumulative donation to this project has not reached 100 XLM")]
     fn test_mint_project_nft_below_threshold() {
-        let (_env, _cid, client, _admin, pid) = setup();
+        let (env, _cid, client, _admin, pid) = setup();
         let donor = Address::generate(&env);
         let token_admin = Address::generate(&env);
         let token = env
@@ -2530,7 +2530,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Milestone NFT already minted for this project")]
     fn test_mint_project_nft_duplicate_prevented() {
-        let (_env, _cid, client, _admin, pid) = setup();
+        let (env, _cid, client, _admin, pid) = setup();
         let donor = Address::generate(&env);
         let token_admin = Address::generate(&env);
         let token = env
@@ -2548,7 +2548,7 @@ mod tests {
 
     #[test]
     fn test_project_nft_independent_per_project() {
-        let (_env, _cid, client, admin, pid1) = setup();
+        let (env, _cid, client, admin, pid1) = setup();
         let pid2 = String::from_str(&env, "proj-002");
         let wallet2 = Address::generate(&env);
         client.register_project(
@@ -2577,7 +2577,7 @@ mod tests {
 
     #[test]
     fn test_project_nft_cumulative_across_donations() {
-        let (_env, _cid, client, _admin, pid) = setup();
+        let (env, _cid, client, _admin, pid) = setup();
         let donor = Address::generate(&env);
         let token_admin = Address::generate(&env);
         let token = env
@@ -2611,7 +2611,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Only admin can perform this action")]
     fn test_pause_project_non_admin_fails() {
-        let (_env, _cid, client, _admin, pid) = setup();
+        let (env, _cid, client, _admin, pid) = setup();
         let imposter = Address::generate(&env);
         client.pause_project(&imposter, &pid);
     }
@@ -2645,7 +2645,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Only admin can perform this action")]
     fn test_resume_project_non_admin_fails() {
-        let (_env, _cid, client, admin, pid) = setup();
+        let (env, _cid, client, admin, pid) = setup();
         client.pause_project(&admin, &pid);
         let imposter = Address::generate(&env);
         client.resume_project(&imposter, &pid);
@@ -2669,7 +2669,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Project is temporarily paused")]
     fn test_donate_to_paused_project_fails() {
-        let (_env, _cid, client, admin, pid) = setup();
+        let (env, _cid, client, admin, pid) = setup();
         client.pause_project(&admin, &pid);
 
         let donor = Address::generate(&env);
@@ -2683,7 +2683,7 @@ mod tests {
 
     #[test]
     fn test_donate_after_resume_succeeds() {
-        let (_env, _cid, client, admin, pid) = setup();
+        let (env, _cid, client, admin, pid) = setup();
         client.pause_project(&admin, &pid);
         client.resume_project(&admin, &pid);
 
@@ -2708,7 +2708,7 @@ mod tests {
     /// before the external token transfer fires.
     #[test]
     fn test_donate_basic_flow_after_cei_reorder() {
-        let (_env, _cid, client, _admin, pid) = setup();
+        let (env, _cid, client, _admin, pid) = setup();
         let donor = Address::generate(&env);
         let token_admin = Address::generate(&env);
         let token = env
@@ -2747,7 +2747,7 @@ mod tests {
     /// it counts unique donors.
     #[test]
     fn test_donate_unique_donor_count_not_inflated() {
-        let (_env, _cid, client, _admin, pid) = setup();
+        let (env, _cid, client, _admin, pid) = setup();
         let donor = Address::generate(&env);
         let token_admin = Address::generate(&env);
         let token = env
@@ -2771,7 +2771,7 @@ mod tests {
     /// Two distinct donors to the same project must each be counted once.
     #[test]
     fn test_donate_distinct_donors_increment_count() {
-        let (_env, _cid, client, _admin, pid) = setup();
+        let (env, _cid, client, _admin, pid) = setup();
         let token_admin = Address::generate(&env);
         let token = env
             .register_stellar_asset_contract_v2(token_admin)
@@ -2834,7 +2834,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Only admin can perform this action")]
     fn test_deactivate_all_projects_non_admin_fails() {
-        let (_env, _cid, client, _admin, _pid) = setup();
+        let (env, _cid, client, _admin, _pid) = setup();
         let imposter = Address::generate(&env);
         client.deactivate_all_projects(&imposter);
     }
@@ -2860,7 +2860,7 @@ mod tests {
 
     #[test]
     fn test_two_step_admin_transfer_success() {
-        let (_env, _cid, client, admin) = setup_admin_only();
+        let (env, _cid, client, admin) = setup_admin_only();
         let new_admin = Address::generate(&env);
 
         client.transfer_admin(&admin, &new_admin);
@@ -2876,7 +2876,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Only admin can perform this action")]
     fn test_two_step_admin_transfer_non_admin_cant_initiate() {
-        let (_env, _cid, client, _admin) = setup_admin_only();
+        let (env, _cid, client, _admin) = setup_admin_only();
         let imposter = Address::generate(&env);
         let new_admin = Address::generate(&env);
         client.transfer_admin(&imposter, &new_admin);
@@ -2893,7 +2893,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Admin transfer already pending; cancel first")]
     fn test_two_step_admin_transfer_double_propose_fails() {
-        let (_env, _cid, client, admin) = setup_admin_only();
+        let (env, _cid, client, admin) = setup_admin_only();
         let a = Address::generate(&env);
         let b = Address::generate(&env);
         client.transfer_admin(&admin, &a);
@@ -2902,7 +2902,7 @@ mod tests {
 
     #[test]
     fn test_two_step_admin_transfer_cancel_clears_pending() {
-        let (_env, _cid, client, admin) = setup_admin_only();
+        let (env, _cid, client, admin) = setup_admin_only();
         let new_admin = Address::generate(&env);
 
         client.transfer_admin(&admin, &new_admin);
@@ -2924,7 +2924,7 @@ mod tests {
 
     #[test]
     fn test_pause_blocks_donate() {
-        let (_env, _cid, client, _admin) = setup_admin_only();
+        let (env, _cid, client, _admin) = setup_admin_only();
         let pid = String::from_str(&env, "proj-pause");
         let wallet = Address::generate(&env);
         client.register_project(
@@ -2954,7 +2954,7 @@ mod tests {
 
     #[test]
     fn test_pause_then_unpause_allows_donate() {
-        let (_env, _cid, client, admin) = setup_admin_only();
+        let (env, _cid, client, admin) = setup_admin_only();
         let pid = String::from_str(&env, "proj-pause2");
         let wallet = Address::generate(&env);
         client.register_project(
@@ -2984,7 +2984,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Only admin can perform this action")]
     fn test_pause_contract_non_admin_fails() {
-        let (_env, _cid, client, _admin) = setup_admin_only();
+        let (env, _cid, client, _admin) = setup_admin_only();
         let imposter = Address::generate(&env);
         client.pause_contract(&imposter);
     }
@@ -2993,7 +2993,7 @@ mod tests {
 
     #[test]
     fn test_propose_upgrade_stores_pending() {
-        let (_env, _cid, client, admin) = setup_admin_only();
+        let (env, _cid, client, admin) = setup_admin_only();
         let fake_hash = BytesN::from_array(&env, &[7u8; 32]);
 
         client.propose_upgrade(&admin, &fake_hash);
@@ -3005,7 +3005,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Only admin can perform this action")]
     fn test_propose_upgrade_non_admin_fails() {
-        let (_env, _cid, client, _admin) = setup_admin_only();
+        let (env, _cid, client, _admin) = setup_admin_only();
         let imposter = Address::generate(&env);
         let fake_hash = BytesN::from_array(&env, &[1u8; 32]);
         client.propose_upgrade(&imposter, &fake_hash);
@@ -3014,7 +3014,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Upgrade already pending; cancel first")]
     fn test_propose_upgrade_double_propose_rejected() {
-        let (_env, _cid, client, admin) = setup_admin_only();
+        let (env, _cid, client, admin) = setup_admin_only();
         let h1 = BytesN::from_array(&env, &[1u8; 32]);
         let h2 = BytesN::from_array(&env, &[2u8; 32]);
         client.propose_upgrade(&admin, &h1);
@@ -3024,7 +3024,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Upgrade timelock not yet elapsed")]
     fn test_execute_upgrade_before_timelock_fails() {
-        let (_env, _cid, client, admin) = setup_admin_only();
+        let (env, _cid, client, admin) = setup_admin_only();
         let fake_hash = BytesN::from_array(&env, &[3u8; 32]);
         client.propose_upgrade(&admin, &fake_hash);
         // Still well before the effective ledger.
@@ -3033,7 +3033,7 @@ mod tests {
 
     #[test]
     fn test_execute_upgrade_after_timelock_succeeds() {
-        let (_env, _cid, client, admin) = setup_admin_only();
+        let (env, _cid, client, admin) = setup_admin_only();
         let fake_hash = BytesN::from_array(&env, &[4u8; 32]);
         let start = env.ledger().sequence();
         client.propose_upgrade(&admin, &fake_hash);
@@ -3053,7 +3053,7 @@ mod tests {
 
     #[test]
     fn test_cancel_upgrade_clears_pending() {
-        let (_env, _cid, client, admin) = setup_admin_only();
+        let (env, _cid, client, admin) = setup_admin_only();
         let fake_hash = BytesN::from_array(&env, &[5u8; 32]);
         client.propose_upgrade(&admin, &fake_hash);
         assert!(client.get_pending_upgrade().is_some());

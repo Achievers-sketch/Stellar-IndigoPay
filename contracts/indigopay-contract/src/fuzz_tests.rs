@@ -422,7 +422,7 @@ mod fuzz {
         fn prop_deactivated_project_rejects_donations(
             amount in 1i128..=MAX_DONATION,
         ) {
-            let (_env, admin, client, project_id) = setup_with_admin();
+            let (env, admin, client, project_id) = setup_with_admin();
             let token_admin = Address::generate(&env);
             let token = env.register_stellar_asset_contract_v2(token_admin).address();
             let donor = Address::generate(&env);
@@ -456,7 +456,7 @@ mod fuzz {
         fn prop_paused_project_rejects_donations(
             amount in 1i128..=MAX_DONATION,
         ) {
-            let (_env, admin, client, project_id) = setup_with_admin();
+            let (env, admin, client, project_id) = setup_with_admin();
             let token_admin = Address::generate(&env);
             let token = env.register_stellar_asset_contract_v2(token_admin).address();
             let donor = Address::generate(&env);
@@ -489,7 +489,7 @@ mod fuzz {
         fn prop_resumed_project_accepts_donations(
             amount in 1i128..=MAX_DONATION,
         ) {
-            let (_env, admin, client, project_id) = setup_with_admin();
+            let (env, admin, client, project_id) = setup_with_admin();
             let token_admin = Address::generate(&env);
             let token = env.register_stellar_asset_contract_v2(token_admin).address();
             let donor = Address::generate(&env);
@@ -584,7 +584,7 @@ mod fuzz {
         fn prop_contract_pause_blocks_donations(
             amount in 1i128..=MAX_DONATION,
         ) {
-            let (_env, admin, client, project_id) = setup_with_admin();
+            let (env, admin, client, project_id) = setup_with_admin();
             let token_admin = Address::generate(&env);
             let token = env.register_stellar_asset_contract_v2(token_admin).address();
             let donor = Address::generate(&env);
@@ -614,7 +614,7 @@ mod fuzz {
         fn prop_duplicate_project_id_rejected(
             _dummy in 0..1,
         ) {
-            let (_env, admin, client, project_id) = setup_with_admin();
+            let (env, admin, client, project_id) = setup_with_admin();
             let wallet2 = Address::generate(&env);
             let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                 client.register_project(
@@ -708,7 +708,7 @@ mod fuzz {
         fn prop_deactivate_all_projects(
             _dummy in 0..1,
         ) {
-            let (_env, admin, client, project_id) = setup_with_admin();
+            let (env, admin, client, project_id) = setup_with_admin();
 
             let wallet_b = Address::generate(&env);
             let project_b = SorobanString::from_str(&env, "proj-bulk-b");
