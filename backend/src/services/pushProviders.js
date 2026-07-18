@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * src/services/pushProviders.js
@@ -25,12 +25,12 @@
  *   indigopay_push_latency_seconds   {provider}
  */
 
-const { Expo } = require('expo-server-sdk');
-const logger = require('../logger');
-const { CircuitBreaker } = require('./circuitBreaker');
+const { Expo } = require("expo-server-sdk");
+const logger = require("../logger");
+const { CircuitBreaker } = require("./circuitBreaker");
 const {
   metrics: { pushSentTotal, pushLatencySeconds },
-} = require('./metrics');
+} = require("./metrics");
 
 // ---------------------------------------------------------------------------
 // Lazy-loaded optional dependencies (graceful degradation when not installed)
@@ -38,14 +38,14 @@ const {
 
 let apn = null;
 try {
-  apn = require('@parse/node-apn'); // eslint-disable-line import/no-extraneous-dependencies
+  apn = require("@parse/node-apn");
 } catch (e) {
   /* not installed — ApnsProvider will degrade to misconfigured state */
 }
 
 let googleAuth = null;
 try {
-  googleAuth = require('google-auth-library'); // eslint-disable-line import/no-extraneous-dependencies
+  googleAuth = require("google-auth-library");
 } catch (e) {
   /* not installed — FcmProvider will degrade */
 }
@@ -55,19 +55,19 @@ try {
 // ---------------------------------------------------------------------------
 
 const apnsBreaker = new CircuitBreaker({
-  name: 'apns_push',
+  name: "apns_push",
   failureThreshold: 3,
   resetTimeout: 60000,
 });
 
 const fcmBreaker = new CircuitBreaker({
-  name: 'fcm_push',
+  name: "fcm_push",
   failureThreshold: 3,
   resetTimeout: 60000,
 });
 
 const expoBreaker = new CircuitBreaker({
-  name: 'expo_push',
+  name: "expo_push",
   failureThreshold: 5,
   resetTimeout: 30000,
 });
@@ -106,7 +106,7 @@ class ApnsProvider {
 
   _init() {
     if (!apn) {
-      this._initError = '@parse/node-apn is not installed';
+      this._initError = "@parse/node-apn is not installed";
       return;
     }
     const keyId = process.env.APNS_KEY_ID;
@@ -116,9 +116,9 @@ class ApnsProvider {
 
     if (!keyId || !teamId || !keyPath || !bundleId) {
       this._initError =
-        'APNs not configured — set APNS_KEY_ID, APNS_TEAM_ID, APNS_PRIVATE_KEY_PATH, APNS_BUNDLE_ID';
+        "APNs not configured — set APNS_KEY_ID, APNS_TEAM_ID, APNS_PRIVATE_KEY_PATH, APNS_BUNDLE_ID";
       logger.warn(
-        { event: 'apns_not_configured' },
+        { event: "apns_not_configured" },
         this._initError,
       );
       return;
@@ -131,31 +131,31 @@ class ApnsProvider {
           keyId,
           teamId,
         },
-        production: process.env.NODE_ENV === 'production',
+        production: process.env.NODE_ENV === "production",
       });
       this._bundleId = bundleId;
       this._configured = true;
       logger.info(
-        { event: 'apns_provider_ready', teamId, bundleId },
-        'ApnsProvider initialized',
+        { event: "apns_provider_ready", teamId, bundleId },
+        "ApnsProvider initialized",
       );
     } catch (err) {
       this._initError = err.message;
       logger.error(
-        { event: 'apns_provider_init_failed', err: err.message },
-        'Failed to initialize ApnsProvider',
+        { event: "apns_provider_init_failed", err: err.message },
+        "Failed to initialize ApnsProvider",
       );
     }
   }
 
   get providerName() {
-    return 'apns';
+    return "apns";
   }
 
   /** @param {string} token */
   validateToken(token) {
     // APNs device tokens are 64-character hex strings.
-    return typeof token === 'string' && /^[0-9a-f]{64}$/i.test(token);
+    return typeof token === "string" && /^[0-9a-f]{64}$/i.test(token);
   }
 
   /**
@@ -165,13 +165,13 @@ class ApnsProvider {
    */
   async send(deviceToken, payload) {
     if (!this._configured) {
-      throw new Error(this._initError || 'ApnsProvider not configured');
+      throw new Error(this._initError || "ApnsProvider not configured");
     }
 
     const notification = new apn.Notification();
     notification.expiry = Math.floor(Date.now() / 1000) + 3600; // 1h TTL
     notification.badge = payload.badge ?? 1;
-    notification.sound = 'default';
+    notification.sound = "default";
     notification.alert = { title: payload.title, body: payload.body };
     notification.payload = payload.data || {};
     notification.topic = this._bundleId;
@@ -187,10 +187,10 @@ class ApnsProvider {
     }
 
     const failure = result.failed[0];
-    const reason = failure?.response?.reason || failure?.error?.message || 'unknown';
+    const reason = failure?.response?.reason || failure?.error?.message || "unknown";
 
     // 410 Unregistered — device token is stale.
-    if (reason === 'Unregistered' || failure?.status === '410') {
+    if (reason === "Unregistered" || failure?.status === "410") {
       return { success: false, unregistered: true, error: reason };
     }
 
@@ -207,7 +207,7 @@ class ApnsProvider {
 // FcmProvider
 // ---------------------------------------------------------------------------
 
-const FCM_SEND_URL = 'https://fcm.googleapis.com/fcm/send';
+const FCM_SEND_URL = "https://fcm.googleapis.com/fcm/send";
 
 class FcmProvider {
   constructor() {
@@ -216,8 +216,8 @@ class FcmProvider {
 
     if (!this._configured) {
       logger.warn(
-        { event: 'fcm_not_configured' },
-        'FcmProvider: FCM_SERVER_KEY not set — FCM provider disabled',
+        { event: "fcm_not_configured" },
+        "FcmProvider: FCM_SERVER_KEY not set — FCM provider disabled",
       );
     }
 
@@ -227,13 +227,13 @@ class FcmProvider {
   }
 
   get providerName() {
-    return 'fcm';
+    return "fcm";
   }
 
   /** @param {string} token */
   validateToken(token) {
     // FCM tokens are long alphanumeric strings, typically 140–200+ chars.
-    return typeof token === 'string' && token.length > 50;
+    return typeof token === "string" && token.length > 50;
   }
 
   /**
@@ -243,27 +243,27 @@ class FcmProvider {
    */
   async send(deviceToken, payload) {
     if (!this._configured) {
-      throw new Error('FcmProvider not configured — set FCM_SERVER_KEY');
+      throw new Error("FcmProvider not configured — set FCM_SERVER_KEY");
     }
 
     const body = JSON.stringify({
       to: deviceToken,
-      priority: 'high',
+      priority: "high",
       notification: {
         title: payload.title,
         body: payload.body,
-        sound: 'default',
+        sound: "default",
       },
       data: payload.data || {},
     });
 
     const headers = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       Authorization: `key=${this._serverKey}`,
     };
 
     const resp = await fetch(FCM_SEND_URL, {
-      method: 'POST',
+      method: "POST",
       headers,
       body,
     });
@@ -279,8 +279,8 @@ class FcmProvider {
       // Canonical ID means FCM replaced the token — log but don't clean up here.
       if (result?.registration_id) {
         logger.info(
-          { event: 'fcm_canonical_id', old: deviceToken, new: result.registration_id },
-          'FCM returned canonical registration ID',
+          { event: "fcm_canonical_id", old: deviceToken, new: result.registration_id },
+          "FCM returned canonical registration ID",
         );
       }
       return {
@@ -289,8 +289,8 @@ class FcmProvider {
       };
     }
 
-    const error = json.results?.[0]?.error || 'unknown FCM error';
-    if (error === 'NotRegistered' || error === 'InvalidRegistration') {
+    const error = json.results?.[0]?.error || "unknown FCM error";
+    if (error === "NotRegistered" || error === "InvalidRegistration") {
       return { success: false, unregistered: true, error };
     }
 
@@ -310,7 +310,7 @@ const expoClient = new Expo(
 
 class ExpoProvider {
   get providerName() {
-    return 'expo';
+    return "expo";
   }
 
   /** @param {string} token */
@@ -325,12 +325,12 @@ class ExpoProvider {
    */
   async send(deviceToken, payload) {
     if (!Expo.isExpoPushToken(deviceToken)) {
-      return { success: false, error: 'Invalid Expo push token' };
+      return { success: false, error: "Invalid Expo push token" };
     }
 
     const message = {
       to: deviceToken,
-      sound: 'default',
+      sound: "default",
       title: payload.title,
       body: payload.body,
       data: payload.data || {},
@@ -338,12 +338,12 @@ class ExpoProvider {
 
     const [ticket] = await expoClient.sendPushNotificationsAsync([message]);
 
-    if (ticket.status === 'ok') {
+    if (ticket.status === "ok") {
       return { success: true, providerMessageId: ticket.id };
     }
 
-    const error = ticket.details?.error || ticket.message || 'unknown Expo error';
-    if (error === 'DeviceNotRegistered') {
+    const error = ticket.details?.error || ticket.message || "unknown Expo error";
+    if (error === "DeviceNotRegistered") {
       return { success: false, unregistered: true, error };
     }
     throw new Error(`Expo error: ${error}`);
@@ -370,16 +370,16 @@ const _expoProvider = new ExpoProvider();
  * @param {string|null} preference 'auto' | 'apns' | 'fcm' | 'expo' | null
  * @returns {{ primary: PushProvider, fallback: ExpoProvider, breaker: CircuitBreaker }}
  */
-function selectProvider(platform, preference = 'auto') {
-  const pref = preference || 'auto';
+function selectProvider(platform, preference = "auto") {
+  const pref = preference || "auto";
 
-  if (pref === 'apns') return { primary: _apnsProvider, breaker: apnsBreaker, fallback: _expoProvider };
-  if (pref === 'fcm')  return { primary: _fcmProvider,  breaker: fcmBreaker,  fallback: _expoProvider };
-  if (pref === 'expo') return { primary: _expoProvider, breaker: expoBreaker, fallback: _expoProvider };
+  if (pref === "apns") return { primary: _apnsProvider, breaker: apnsBreaker, fallback: _expoProvider };
+  if (pref === "fcm")  return { primary: _fcmProvider,  breaker: fcmBreaker,  fallback: _expoProvider };
+  if (pref === "expo") return { primary: _expoProvider, breaker: expoBreaker, fallback: _expoProvider };
 
   // Auto: route by platform.
-  if (platform === 'ios')     return { primary: _apnsProvider, breaker: apnsBreaker, fallback: _expoProvider };
-  if (platform === 'android') return { primary: _fcmProvider,  breaker: fcmBreaker,  fallback: _expoProvider };
+  if (platform === "ios")     return { primary: _apnsProvider, breaker: apnsBreaker, fallback: _expoProvider };
+  if (platform === "android") return { primary: _fcmProvider,  breaker: fcmBreaker,  fallback: _expoProvider };
   return { primary: _expoProvider, breaker: expoBreaker, fallback: _expoProvider };
 }
 
@@ -417,7 +417,7 @@ async function sendViaProvider(deviceToken, platform, preference, payload) {
   } catch (primaryErr) {
     logger.warn(
       {
-        event: 'push_primary_failed',
+        event: "push_primary_failed",
         provider: primary.providerName,
         platform,
         err: primaryErr.message,
@@ -425,12 +425,12 @@ async function sendViaProvider(deviceToken, platform, preference, payload) {
       `Primary provider [${primary.providerName}] failed — falling back to Expo`,
     );
 
-    if (primary.providerName === 'expo') {
-      const outcome = 'failed';
-      recordMetrics('expo', outcome, startMs);
+    if (primary.providerName === "expo") {
+      const outcome = "failed";
+      recordMetrics("expo", outcome, startMs);
       return {
         success: false,
-        provider: 'expo',
+        provider: "expo",
         outcome,
         error: primaryErr.message,
       };
@@ -441,7 +441,7 @@ async function sendViaProvider(deviceToken, platform, preference, payload) {
     try {
       result = await expoBreaker.call(() => fallback.send(deviceToken, payload));
     } catch (fallbackErr) {
-      const outcome = 'failed';
+      const outcome = "failed";
       recordMetrics(primary.providerName, outcome, startMs);
       return {
         success: false,
@@ -453,12 +453,12 @@ async function sendViaProvider(deviceToken, platform, preference, payload) {
   }
 
   // ── Map result to outcome label ───────────────────────────────────────────
-  const effectiveProvider = usedFallback ? 'expo' : primary.providerName;
+  const effectiveProvider = usedFallback ? "expo" : primary.providerName;
   const outcome = result.unregistered
-    ? 'unregistered'
+    ? "unregistered"
     : result.success
-      ? (usedFallback ? 'fallback' : 'delivered')
-      : 'failed';
+      ? (usedFallback ? "fallback" : "delivered")
+      : "failed";
 
   recordMetrics(effectiveProvider, outcome, startMs);
 

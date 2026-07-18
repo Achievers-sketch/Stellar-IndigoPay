@@ -66,8 +66,8 @@ module.exports = {
   },
 
   async down(client) {
-    await client.query(`DROP INDEX IF EXISTS idx_push_provider`);
-    await client.query(`DROP INDEX IF EXISTS idx_push_platform`);
+    await client.query("DROP INDEX IF EXISTS idx_push_provider");
+    await client.query("DROP INDEX IF EXISTS idx_push_platform");
     await client.query(`
       ALTER TABLE push_notifications
         DROP CONSTRAINT IF EXISTS push_notifications_provider_pref_check,
