@@ -50,7 +50,7 @@ jobs:
           tags: indigopay-backend-test:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - run: docker compose -f docker-compose.test.yml run --rm backend npm run test:integration
+      - run: docker compose -f docker-compose.test.yml run --rm -v /var/run/docker.sock:/var/run/docker.sock backend npm run test:integration
         working-directory: .
 
   helm:
