@@ -4,9 +4,9 @@
 // TODO(indigopay-272): migrate to #[contractevent] pattern.
 #![allow(deprecated)]
 #[cfg(all(test, feature = "testutils"))]
-mod fuzz_tests;
-#[cfg(all(test, feature = "testutils"))]
 mod fuzz_template;
+#[cfg(all(test, feature = "testutils"))]
+mod fuzz_tests;
 
 /**
  * contracts/indigopay-contract/src/lib.rs
@@ -354,16 +354,6 @@ fn apply_campaign_goal_progress(project: &mut Project) -> bool {
         true
     } else {
         false
-    }
-}
-
-fn voting_weight_from_badge(badge: &BadgeTier) -> u32 {
-    match badge {
-        BadgeTier::None => 0,
-        BadgeTier::Seedling => 1,
-        BadgeTier::Tree => 3,
-        BadgeTier::Forest => 10,
-        BadgeTier::EarthGuardian => 25,
     }
 }
 
